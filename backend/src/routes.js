@@ -12,7 +12,7 @@ const routes = Router();
 
 routes.post('/devs', async (request, response) => {
     
-    const { github_username, techs, latitude, longitude} = request.body;
+    const { github_username, techs, longitude, latitude} = request.body;
     const gitResponse = await axios.get(`https://api.github.com/users/${github_username}`);
 
     //console.log(request.body);
@@ -22,7 +22,7 @@ routes.post('/devs', async (request, response) => {
 
     const location = {
         type: 'Point',
-        coordinates: {longitude, latitude},
+        coordinates: [longitude, latitude],
     };
 
     const dev = await Dev.create({
