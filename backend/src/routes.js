@@ -1,6 +1,6 @@
 const { Router } = require('express');
-const axios = require("axios");
-const Dev = require('./models/Dev');
+const DevController = require('./controllers/DevController');
+const SearchController = require('./controllers/SearchController');
 
 const routes = Router();
 
@@ -10,31 +10,9 @@ const routes = Router();
 // Route params: request.params (Identify an resource on delete or update)
 // Body: request.body (Change or create data)
 
-routes.post('/devs', async (request, response) => {
-    
-    const { github_username, techs, longitude, latitude} = request.body;
-    const gitResponse = await axios.get(`https://api.github.com/users/${github_username}`);
+routes.get('/devs', DevController.index);
+routes.post('/devs', DevController.store);
 
-    //console.log(request.body);
-    const{ name = login, avatar_url, bio} = gitResponse.data;
-    //console.log(name, avatar_url, bio); 
-    const techsArray = techs.split(',').map(tech => tech.trim());
-
-    const location = {
-        type: 'Point',
-        coordinates: [longitude, latitude],
-    };
-
-    const dev = await Dev.create({
-        name,
-        github_username,
-        avatar_url,
-        bio,
-        techs: techsArray,
-        location,
-    });
-
-    return response.json(dev);
-});
+routes.get('/search', SearchController.index);
 
 module.exports = routes;
