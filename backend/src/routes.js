@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const axios = require("axios");
+const Dev = require('./models/Dev');
 
 const routes = Router();
 
@@ -10,14 +11,24 @@ const routes = Router();
 // Body: request.body (Change or create data)
 
 routes.post('/devs', async (request, response) => {
-    const { githubUserName } = request.body;
+    
+    const { github_username, techs} = request.body;
+    const gitResponse = await axios.get(`https://api.github.com/users/${github_username}`);
 
-    const gitResponse = await axios.get(`https://api.github.com/users/${githubUserName}`);
+    //console.log(request.body);
+    const{ name = login, avatar_url, bio} = gitResponse.data;
+    //console.log(name, avatar_url, bio); 
+    const techsArray = techs.split(',').map(tech => tech.trim());
 
-    console.log(request.body);
-    console.log(gitResponse.data);
+    const dev = await Dev.create({
+        name,
+        github_username,
+        avatar_url,
+        bio,
+        techs: techsArray,
+    })
 
-    return response.json({ message: 'Hello world'});
+    return response.json(dev);
 });
 
 module.exports = routes;
